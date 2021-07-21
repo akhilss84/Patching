@@ -1,0 +1,35 @@
+---
+- name: Register to satellite server
+  hosts: all
+  ignore_errors: true
+  become: true
+  tasks:
+  - name: Unregister system from RHN
+    rhn_register:
+      state: absent
+      server_url: http://<satellite IP>/XMLRPC
+      username: "{{ rhn_username }}"
+      password: "{{ rhn_password }}"
+  - name: register to satellite
+    rhn_register:
+      state: present
+      server_url: http://<satellite IP>/XMLRPC
+      activationkey: <activation-key>
+      ca_cert: /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+    #  channels: rhel-x86_64,rhel-x86_64-extras
+    when:
+      - ansible_distribution == "RedHat" \
+        and ansible_distribution_major_version == "6"
+
+  - name: Register RHEL 7 to satellite server
+    rhn_register:
+      username: "{{ rhn_username }}"
+      password: "{{ rhn_password }}"
+      state: present
+      server_url: http://<satellite IP>/XMLRPC
+      activationkey: <activation-key>
+      ca_cert: /usr/share/rhn/RHN-ORG-TRUSTED-SSL-CERT
+      # channels: q1_2020_rhel7,q1_2020_rhel7_optional,q1_2020_rhel7_rhntools
+    when:
+      - ansible_distribution == "RedHat" \
+        and ansible_distribution_major_version == "7"
