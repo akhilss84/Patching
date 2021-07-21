@@ -1,0 +1,35 @@
+---
+- name: 
+  hosts: all
+  become: true
+  become_method: sudo
+  become_user: root
+  ignore_errors: true
+  tasks:
+  - name: 
+    script: backup_before_patching.sh prescan 2> /dev/null
+    register: PRE_SCAN
+  - name: Display the pre output
+    debug:
+      msg: "{{ PRE_SCAN.stdout_lines }}"
+  - name: Find the Server uptime
+    set_fact:
+      SERVER_UPTIME: "{{ ansible_uptime_seconds }}"
+  - name: Install the yum utils for validation purpose
+    yum:
+      name: yum-utils
+      state: present
+  - name: Patch the server
+    yum:
+      name: '*'
+      state: latest
+    register: patch_status
+  - name: Pre-reboot backup script run
+    script: backup_before_reboot.sh preboot 2> /dev/null
+    register: PRE_REBOOT
+#    this task is to restart the system
+  - name: restart system
+    shell: shutdown -r +1 "Rebooting system after patching"
+#    when: reboot_required.stdout == "reboot_needed"
+    register: reboot_started
+    ignore_errors: true 
