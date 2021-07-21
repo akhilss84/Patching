@@ -15,6 +15,10 @@
   - name: Find the Server uptime
     set_fact:
       SERVER_UPTIME: "{{ ansible_uptime_seconds }}"
+  - name: Disabled the file system from /etc/fstab
+    copy:
+      src: /etc/fstab_patching
+      dest: /etc/fstab
   - name: Install the yum utils for validation purpose
     yum:
       name: yum-utils
@@ -31,5 +35,16 @@
   - name: restart system
     shell: shutdown -r +1 "Rebooting system after patching"
 #    when: reboot_required.stdout == "reboot_needed"
-    register: reboot_started
-    ignore_errors: true 
+    register: reboot_startedtasks:
+  - name: pause for 180 secs
+    pause:
+      minutes: 3
+  - name: enabled the file system from /etc/fstab
+    copy:
+      src: /etc/fstab_Post_patching
+      dest: /etc/fstab
+  - name: mount all
+    shell: /usr/bin/mount -a
+    changed_when: False
+    
+    
