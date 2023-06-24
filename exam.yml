@@ -1,0 +1,17 @@
+---
+- name: Gather Server Information
+  hosts: all
+  gather_facts: true
+
+  tasks:
+  - name: Display Hostname
+    debug:
+      msg: "Hostname: {{ ansible_hostname }}"
+
+  - name: Display Current Date
+    debug:
+      msg: "Current Date: {{ ansible_date_time.date }}"
+
+  - name: Display CPU Information
+    debug:
+      msg: "CPU Model: {{ ansible_processor_model }}"
